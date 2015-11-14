@@ -34,13 +34,15 @@ Excel中定义一些特殊的文本作为标记,然后通过对这些标记进�
 下面我们定义一个简单的循环数据的模板
 
 A | B | C
-{{for items}} | |
+--- | --- | ---
+{{for items}} | | 
 {{f1}} | {{f2}} | {{f3}}
-{{end}} | |
+{{end}} | | 
 
 通过上面的模板我们就定义了一个简单的循环. 当数据是:
 
 A | B | C
+--- | --- | ---
 A1 | B1 | C1
 A2 | B2 | C2
 A3 | B3 | C3
@@ -100,44 +102,46 @@ Reader(template_file, sheet_name, input_file,
 
 在简单例子中,我们只定义了一个循环,并且所有变量都定义在循环体中,下面我们定义一个更复杂一些的例子.
 
-Section | {{section}} |
-Input | {{input}} |
+Section | {{section}} | \ 
+--- | --- | ---
+Input | {{input}} | 
 A | B | C
-{{for request}} | |
+{{for request}} | | 
 {{f1}} | {{f2}} | {{f3}}
-{{end}} | |
- | |
-Output | {{output}} |
+{{end}} | | 
+ | | 
+Output | {{output}} | 
 A | B | C
-{{for response}} | |
+{{for response}} | | 
 {{f1}} | {{f2}} | {{f3}}
-{{end}} | |
+{{end}} | | 
 
 可以看到这个模板有两个循环,同时还有一些非循环项.我们可以把这个例子看成报文规范的示例,下面我们的
 数据将保存多条报文,如:
 
-Section | Package1 |
-Input | Input-001 |
+Section | Package1 | \ 
+--- | --- | ---
+Input | Input-001 | 
 A | B | C
 A1 | B1 | C1
 A2 | B2 | C2
 A3 | B3 | C3
- | |
-Output | Output-001 |
+ | | 
+Output | Output-001 | 
 A | B | C
 X1 | Y1 | Z1
 X2 | Y2 | Z2
 X3 | Y3 | Z3
- | |
- | |
-Section | Package2 |
-Input | Input-002 |
+ | | 
+ | | 
+Section | Package2 | 
+Input | Input-002 | 
 A | B | C
 A4 | B4 | C4
 A5 | B5 | C5
 A6 | B6 | C6
- | |
-Output | Output-002 |
+ | | 
+Output | Output-002 | 
 A | B | C
 X4 | Y4 | Z4
 X5 | Y5 | Z5
