@@ -23,9 +23,11 @@ Excel中定义一些特殊的文本作为标记,然后通过对这些标记进�
 
 {{xxx}} --
     其中xxx为要抽取数据对应的数据项名称
+
 {{for xxx}} --
     for开始的标签表示下面定义的是循环.此标签需要定义在第一列,并且独占一行.它最后需要 `{{end}}` 表示结束.
     在它之下,在 `{{end}}` 之前的为循环的内容.可以是多行. `xxx` 为循环所对应的数据项名称.
+
 {{end}} --
     表示循环结束
 
@@ -74,8 +76,10 @@ Reader(template_file, sheet_name, input_file,
 
 `template_file` --
     是模板文件
+
 `sheet_name` --
     为指定的sheet名
+
 `input_file` --
     数据文件,如果只有一个文件,则可以为字符串,如果是多个,则可以是tuple或list.
 
@@ -87,6 +91,7 @@ Reader(template_file, sheet_name, input_file,
     ```
 
     当值为tuple时,第一个元素为数据文件名,后面的元素表示对应的sheet名,'*'表示所有sheet页.
+
 `callback` --
     回调,当处理完毕时,执行回调函数.回调函数原型是:
 
@@ -177,3 +182,79 @@ X6 | Y6 | Z6
 ```
 
 可以看到我们按照预期抽取出来了两条数据.其中 `requst` 和 `response` 分别对应报文的请求和输出字段列表.
+
+## 写处理
+
+### 标签格式
+
+在用于写入的Excel模板中通过 `{{xxx}}` 这样的形式来定义标签,常见标签格式为:
+
+{{xxx}} --
+    其中xxx为要写入的数据.它可以是Python的数据,如int, str等,也可以是一个变量.这个变量将可以由外部
+    传入.还可以是一个表达式.即 `xxx` 是符合python语法的表达式.
+
+{{xxx|filter|filter(args)|| --
+    除了简单的表达式以外,还可以关联多个filter.每个filter用 `|` 和前面的值或filter分离.filter
+    是预先定义好的,目前可用的filter可以参考下面关于filter的说明.有些filter可以带参数.
+
+{{for xxx}} --
+    for开始的标签表示下面定义的是循环.此标签需要定义在第一列,并且独占一行.它最后需要 `{{end}}` 表示结束.
+    在它之下,在 `{{end}}` 之前的为循环的内容.可以是多行. `xxx` 为循环所对应的变量名称.
+
+{{end}} --
+    表示循环结束
+
+下面让我们仿照上面读取的例子,编写相应的模板进行试验.
+
+### 简单循环模板
+
+下面我们定义一个简单的循环数据的模板
+
+项目名称 | 地址 | 跳转
+{{for items}} | |
+{{name}} | {{url}} | {{'链接'|link(url)}}
+{{end}} | |
+
+然后定义数据为:
+
+```
+[{'items':[
+    {'name':'uliweb', 'url':'https://github.com/limodou/uliweb'},
+    {'name':'xltools', 'url':'https://github.com/limodou/xltools'},
+]}]
+```
+
+相应的程序为:
+
+```
+from xltools import Writer
+
+data = [{'items':[
+    {'name':'uliweb', 'url':'https://github.com/limodou/uliweb'},
+    {'name':'xltools', 'url':'https://github.com/limodou/xltools'},
+]}]
+Writer('template_3.xlsx', 'sheet1', 'output_1.xlsx', data)
+```
+
+这样当我们打开 `output_1.xlsx` 时会看到类似于:
+
+项目名称 | 地址 | 跳转
+--- | --- | ---
+uliweb | https://github.com/limodou/uliweb | 链接
+xltools | https://github.com/limodou/xltools | 链接
+
+这样的结果.其中链接是Excel的链接形式.所以从上面的模板我们可以看到 `{{'链接'|link(url)}}` 使用了
+`link(url)` 的filter.
+
+## Filter
+
+目前缺省支持的filter为:
+
+date(format) --
+    用来定义日期格式,format为日期格式串.缺省为 `'yyyy-mm-dd'`,你可以写为其它的Excel日期格式.
+
+link(url) --
+    用来定义链接
+
+validate_list('x,y,z', blank=True) --
+    用来校验数据是否在list之内,列表使用`','`分隔.其中 `blank` 表示是否可以为空,缺省为 `True`.
